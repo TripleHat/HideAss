@@ -26,8 +26,8 @@ def checkCreds(cdir):
 
 checkCreds(CDIR)
 
-path_tcp = f"{CDIR}/ovpn_tcp/" # path to tcp .ovpn files
-path_udp = f"{CDIR}/ovpn_udp/" # path to udp .ovpn files 
+path_tcp = f"{CDIR}/ovpn/ovpn_tcp/" # path to tcp .ovpn files
+path_udp = f"{CDIR}/ovpn/ovpn_udp/" # path to udp .ovpn files 
 
 ovpn_tcp = [x for x in os.listdir(path_tcp) if x.endswith(".ovpn")] # list of all tcp .ovpn files
 ovpn_udp = [x for x in os.listdir(path_udp) if x.endswith(".ovpn")] # list of all udp .ovpn files
