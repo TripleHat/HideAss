@@ -1,0 +1,74 @@
+#!/bin/python3
+import os
+import sys
+import random
+
+try:
+	tcp_udp = sys.argv[1]
+except IndexError:
+	tcp_udp = "tcp" # set TCP as default
+
+CDIR = os.getcwd()
+PASS = f"auth-user-pass {CDIR}/asshole"
+
+# check if creds file have credential in it
+
+def checkCreds(cdir):
+	asshole = os.path.isfile(f"{cdir}/asshole")
+	if asshole:
+		readA = open(f"{cdir}/asshole", "r").read()
+		if readA:
+			return True
+		else:
+			print("[-] Creds Not Found!")
+			print("[-] Add your creds to file named \"asshole\"\nOpen README.md file if you have no \nidea how to get your NordVpn creds")
+			sys.exit()
+
+checkCreds(CDIR)
+
+path_tcp = f"{CDIR}/ovpn_tcp/" # path to tcp .ovpn files
+path_udp = f"{CDIR}/ovpn_udp/" # path to udp .ovpn files 
+
+ovpn_tcp = [x for x in os.listdir(path_tcp) if x.endswith(".ovpn")] # list of all tcp .ovpn files
+ovpn_udp = [x for x in os.listdir(path_udp) if x.endswith(".ovpn")] # list of all udp .ovpn files
+
+# lets fire up
+if tcp_udp == "tcp":
+	rand_vpn_tcp = f"{path_tcp}{random.choice(ovpn_tcp)}" # random selected location
+	print(rand_vpn_tcp)
+	# below we check if creds are added to this .ovpn files, if not lets add it
+
+	with open(rand_vpn_tcp, "rb") as file:
+		try:
+			file.seek(-2, os.SEEK_END)
+			while file.read(1) != b'\n':
+				file.seek(-2, os.SEEK_CUR)
+		except OSError:
+			file.seek(0)
+		last_line = file.readline().decode()
+
+	if last_line.startswith("auth-user-pass"):
+		os.system(f"openvpn {rand_vpn_tcp}") # if everything is fine, lets connect
+	else:
+		w_vpn_tcp = open(rand_vpn_tcp, "a").write(PASS)
+		#w_vpn_tcp.close()
+		os.system(f"openvpn {rand_vpn_tcp}") # if everything is fine, lets connect
+elif tcp_udp == "udp":
+	rand_vpn_udp = f"{path_udp}{random.choice(ovpn_udp)}"
+	with open(rand_vpn_udp, "rb") as file:
+		try:
+			file.seek(-2, os.SEEK_END)
+			while file.read(1) != b'\n':
+				file.seek(-2, os.SEEK_CUR)
+		except OSError:
+			file.seek(0)
+		last_line = file.readline().decode()
+	if last_line.startswith("auth-user-pass"):
+		file.close()
+		os.system(f"openvpn {rand_vpn_udp}") # if everything is fine, lets connect
+	else:
+		w_vpn_udp = open(rand_vpn_udp, "a").write(PASS)
+		#w_vpn_udp.close()
+		os.system(f"openvpn {rand_vpn_udp}") # if everything is fine, lets connect
+else:
+	sys.exit("Only TCP/UDP")
